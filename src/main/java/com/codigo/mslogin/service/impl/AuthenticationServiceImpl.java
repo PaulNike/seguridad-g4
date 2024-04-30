@@ -5,7 +5,9 @@ import com.codigo.mslogin.entities.Role;
 import com.codigo.mslogin.entities.Usuario;
 import com.codigo.mslogin.repository.RolRepository;
 import com.codigo.mslogin.repository.UsuarioRepository;
+import com.codigo.mslogin.request.SignInRequest;
 import com.codigo.mslogin.request.SignUpRequest;
+import com.codigo.mslogin.response.AuthenticationResponse;
 import com.codigo.mslogin.service.AuthenticationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +58,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         usuario.setPassword(signUpRequest.getPassword());
         return usuarioRepository.save(usuario);
 
+    }
+
+    @Override
+    public AuthenticationResponse signin(SignInRequest signInRequest) {
+        return null;
     }
 
 }
