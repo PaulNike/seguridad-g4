@@ -9,8 +9,12 @@ import com.codigo.mslogin.request.SignInRequest;
 import com.codigo.mslogin.request.SignUpRequest;
 import com.codigo.mslogin.response.AuthenticationResponse;
 import com.codigo.mslogin.service.AuthenticationService;
+import com.codigo.mslogin.service.JWTService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -22,6 +26,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JWTService jwtService;
 
 
     @Transactional
@@ -39,7 +45,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         assignedRoles.add(userRole);
         //Seteando ROl a mi entidad USER
         usuario.setRoles(assignedRoles);
-        usuario.setPassword(signUpRequest.getPassword());
+        usuario.setPassword(new BCryptPasswordEncoder().encode(signUpRequest.getPassword()));
         return usuarioRepository.save(usuario);
 
     }
@@ -55,14 +61,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Rol userRole = rolRepository.findByNombreRol(Role.ADMIN.name()).orElseThrow(() -> new RuntimeException("Error: Rol no encontrado."));
         assignedRoles.add(userRole);
         usuario.setRoles(assignedRoles);
-        usuario.setPassword(signUpRequest.getPassword());
+        usuario.setPassword(new BCryptPasswordEncoder().encode(signUpRequest.getPassword()));
         return usuarioRepository.save(usuario);
 
     }
 
     @Override
     public AuthenticationResponse signin(SignInRequest signInRequest) {
-        return null;
+    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+            signInRequest.getEmail(),signInRequest.getPassword()));
+        var user = usuarioRepository.findByEmail(signInRequest.getEmail()).orElseThrow(
+                () -> new IllegalArgumentException("Email no valido"));
+
+        var jwt = jwtService.generateToken(user);
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+        authenticationResponse.setToken(jwt);
+        return authenticationResponse;
     }
 
 }

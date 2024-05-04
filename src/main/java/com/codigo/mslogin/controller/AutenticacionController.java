@@ -3,7 +3,9 @@ package com.codigo.mslogin.controller;
 
 import com.codigo.mslogin.entities.Usuario;
 
+import com.codigo.mslogin.request.SignInRequest;
 import com.codigo.mslogin.request.SignUpRequest;
+import com.codigo.mslogin.response.AuthenticationResponse;
 import com.codigo.mslogin.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,11 @@ public class AutenticacionController {
     @PostMapping("/signupadmin")
     public ResponseEntity<Usuario> signUpAdmin(@RequestBody SignUpRequest signUpRequest){
         return ResponseEntity.ok(authenticationService.signUpAdmin(signUpRequest));
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<AuthenticationResponse> signin(@RequestBody SignInRequest signInRequest){
+        return ResponseEntity.ok(authenticationService.signin(signInRequest));
     }
 
 }
